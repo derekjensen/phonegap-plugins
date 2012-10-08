@@ -616,21 +616,48 @@ parentViewController:(UIViewController*)parentViewController
 }
 
 //--------------------------------------------------------------------------
+- (void) setOrientation:(UIInterfaceOrientation) orientation
+{
+  
+  AVCaptureVideoOrientation av_orientation = AVCaptureVideoOrientationLandscapeRight;
+  if (orientation == UIInterfaceOrientationLandscapeLeft) {
+    av_orientation = AVCaptureVideoOrientationLandscapeLeft;
+  } else if (orientation == UIInterfaceOrientationLandscapeRight) {
+    av_orientation = av_orientation = AVCaptureVideoOrientationLandscapeRight;
+  } else {
+    NSLog(@"Rotating to illegal interface orientation! %i", av_orientation);
+  }
+  AVCaptureVideoPreviewLayer* previewLayer = self.processor.previewLayer;
+  AVCaptureConnection* connection = self.processor.previewLayer.connection;
+  if ([AVCaptureVideoPreviewLayer instancesRespondToSelector:@selector(isOrientationSupported:)]) {
+    if ([previewLayer isOrientationSupported]) {
+      [previewLayer setOrientation:av_orientation];
+    }
+  } else {
+    if ([connection isVideoOrientationSupported]) {
+      [connection setVideoOrientation:av_orientation];
+    }
+  }
+
+  
+
+}
 - (void)loadView {
     self.view = [[[UIView alloc] initWithFrame: self.processor.parentViewController.view.frame] autorelease];
     
-    // setup capture preview layer
-    AVCaptureVideoPreviewLayer* previewLayer = self.processor.previewLayer;
-    previewLayer.frame = self.view.bounds;
-    previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+  // setup capture preview layer
+  AVCaptureVideoPreviewLayer* previewLayer = self.processor.previewLayer;
+  previewLayer.frame = self.view.bounds;
+  previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+  
+  [self.view.layer insertSublayer:previewLayer below:[[self.view.layer sublayers] objectAtIndex:0]];
+  [self setOrientation:self.interfaceOrientation];
+  [self.view addSubview:[self buildOverlayView]];
+}
+
+- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+  [self setOrientation:toInterfaceOrientation];
     
-    if ([previewLayer isOrientationSupported]) {
-        [previewLayer setOrientation:AVCaptureVideoOrientationPortrait];
-    }
-    
-    [self.view.layer insertSublayer:previewLayer below:[[self.view.layer sublayers] objectAtIndex:0]];
-    
-    [self.view addSubview:[self buildOverlayView]];
 }
 
 //--------------------------------------------------------------------------
