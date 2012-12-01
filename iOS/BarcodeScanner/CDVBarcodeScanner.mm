@@ -10,17 +10,16 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AssetsLibrary/AssetsLibrary.h>
+#import <Cordova/CDVPlugin.h>
 
 //------------------------------------------------------------------------------
 // use the all-in-one version of zxing that we built
 //------------------------------------------------------------------------------
 #import "zxing-all-in-one.h"
 
-#ifdef CORDOVA_FRAMEWORK
-#import <CORDOVA/CDVPlugin.h>
-#else
-#import "CDVPlugin.h"
-#endif
+
+
+
 
 //------------------------------------------------------------------------------
 // Adds a shutter button to the UI, and changes the scan from continuous to
@@ -623,7 +622,7 @@ parentViewController:(UIViewController*)parentViewController
   if (orientation == UIInterfaceOrientationLandscapeLeft) {
     av_orientation = AVCaptureVideoOrientationLandscapeLeft;
   } else if (orientation == UIInterfaceOrientationLandscapeRight) {
-    av_orientation = av_orientation = AVCaptureVideoOrientationLandscapeRight;
+    av_orientation =  AVCaptureVideoOrientationLandscapeRight;
   } else {
     NSLog(@"Rotating to illegal interface orientation! %i", av_orientation);
   }
@@ -638,13 +637,12 @@ parentViewController:(UIViewController*)parentViewController
       [connection setVideoOrientation:av_orientation];
     }
   }
-
   
 
 }
 - (void)loadView {
     self.view = [[[UIView alloc] initWithFrame: self.processor.parentViewController.view.frame] autorelease];
-    
+  [self.processor.parentViewController.view addSubview:self.view];
   // setup capture preview layer
   AVCaptureVideoPreviewLayer* previewLayer = self.processor.previewLayer;
   previewLayer.frame = self.view.bounds;
